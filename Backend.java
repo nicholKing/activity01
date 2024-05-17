@@ -2,7 +2,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
-// import javax.swing.LayoutStyle;
 
 
 public class Backend extends Frame implements ActionListener{
