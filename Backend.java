@@ -1,408 +1,217 @@
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.swing.*;
 
-public class Backend extends Frame implements ActionListener{
-	//Creating instance
-	String operator = "";
-	String temp = "";
-	String modifiedString;
-	Panel panel1 = new Panel();
-	Panel panel2 = new Panel();
-	Label label1 = new Label("Enter Value 1");
-	Label label2 = new Label("Enter Value 2");
-	Label label3 = new Label("Result");
-	Label label4 = new Label(operator);
-	TextField textField1 = new TextField("");
-	TextField textField2 = new TextField("");
-	TextField textField3 = new TextField("");
-	Button plusBtn, minusBtn, mulBtn, divBtn, modBtn;
-	Button[] numBtn = new Button[10];
-	Button[] funcBtn = new Button[7];
-	Button clearBtn, equBtn;
-	Button darkMode, exitBtn;
-	//Computation Variables
-	double num1 = 0, num2 = 0, result = 0;
-	//Boolean
-	boolean emptyField1 = true;
-	boolean emptyField2 = true;
-	boolean emptyBoth = true;
-	boolean done = false;
-	boolean toggleDarkMode = false;
-	boolean maxLengthReached = false;
-	//Limit
-	int maxLength = 11;
+public class Backend implements ActionListener {
+	JFrame frame = new JFrame();
+	JLabel label1 = new JLabel("Username:"); 
+	JLabel label2 = new JLabel("Password:");
+	JLabel label3 = new JLabel("Welcome Back");
+	JLabel label4 = new JLabel("Login to your account");
+	JLabel label5 = new JLabel("New Here?");
+	JLabel label6 = new JLabel("Sign up now!");
+	JPanel panel = new JPanel();
+	JTextField usernameField = new JTextField();
+	JPasswordField passwordField = new JPasswordField();
+	JCheckBox showPassword = new JCheckBox("Show Password");
+	JButton signUpBtn = new JButton("Sign Up");
+	JButton signInBtn = new JButton("Sign In");
+	private List<String> usernameList = new ArrayList<>(6);
+	private List<String> passwordList = new ArrayList<>(6);
+	private List<String> nameList = new ArrayList<>(6);
+	String password;
+	String username;
+	char[] passwordChar;
+	boolean hasCorrectPassword = false;
+	boolean hasCorrectUsername = false;
+	boolean usernameFound = false;
+	boolean passwordFound = false;
+	boolean hasCorrectName = false;
+	boolean loginSuccessful = false;
 	
+	private Database database = new Database();
+	Backend(Database database){
+		this.database = database;
+		
+		signInBtn.setBackground(new Color(77, 134, 156));
+		signInBtn.setForeground(new Color(238, 247, 255));
+		signUpBtn.setBackground(new Color(238, 247, 255));
+		signUpBtn.setForeground(new Color(77, 134, 156));
+		
+		showPassword.addActionListener(this);
+		signUpBtn.addActionListener(this);
+		signInBtn.addActionListener(this);
+		passwordField.setEchoChar('*');
+		
+		showPassword.setFocusable(false);
+		signInBtn.setFocusable(false);
+		signUpBtn.setFocusable(false);
+		
+		usernameField.setMargin(new Insets(10, 10, 10, 10));
+		passwordField.setMargin(new Insets(10, 10, 10, 10));
+		
+		label1.setFont(new Font("Helvetica", Font.PLAIN, 18));
+		label1.setForeground(new Color(77, 134, 156));
+		label2.setFont(new Font("Helvetica", Font.PLAIN, 18));
+		label2.setForeground(new Color(77, 134, 156));
+		label3.setFont(new Font("Helvetica", Font.BOLD, 45));
+		label3.setForeground(new Color(77, 134, 156));
+		label4.setFont(new Font("Helvetica", Font.PLAIN, 16));
+		label4.setForeground(new Color(77, 134, 156));
+		label5.setFont(new Font("Helvetica", Font.BOLD, 45));
+		label5.setForeground(new Color(238, 247, 255));
+		label6.setFont(new Font("Helvetica", Font.PLAIN, 16));
+		label6.setForeground(new Color(238, 247, 255));
+		passwordField.setFont(new Font("Helvetica", Font.PLAIN, 16));
+		usernameField.setFont(new Font("Helvetica", Font.PLAIN, 16));
+		signInBtn.setFont(new Font("Helvetica", Font.BOLD, 18));
+		signUpBtn.setFont(new Font("Helvetica", Font.BOLD, 18));
+		showPassword.setFont(new Font("Helvetica", Font.PLAIN, 14));
+		showPassword.setBackground(new Color(238, 247, 255));
+		showPassword.setForeground(new Color(77, 134, 156));
+		
+		
+		label1.setBounds(100, 170, 200, 50);
+		label2.setBounds(100, 230, 200, 50);
+		label3.setBounds(90, 80, 400, 50);
+		label4.setBounds(170, 115, 200, 50);
+		label5.setBounds(530, 160, 400, 50);
+		label6.setBounds(600, 195, 200, 50);
 	
-	Backend(){
-		
-		//Operator and Functions
-		plusBtn = new Button("+");
-		minusBtn = new Button("-");
-		mulBtn = new Button("×");
-		divBtn = new Button("÷");
-		equBtn = new Button("=");
-		clearBtn = new Button("AC");
-		modBtn = new Button("%");
-		exitBtn = new Button("X");
-		
-		//add buttons to array
-		funcBtn[0] = plusBtn;
-		funcBtn[1] = minusBtn;
-		funcBtn[2] = mulBtn;
-		funcBtn[3] = divBtn;
-		funcBtn[4] = equBtn;
-		funcBtn[5] = clearBtn;
-		funcBtn[6] = modBtn;
-		
-		for(int i = 0; i < 7; i++) {
-			funcBtn[i].addActionListener(this);
-			funcBtn[i].setFocusable(false);
-			funcBtn[i].setFont(new Font("Serif", Font.PLAIN, 18));
-			funcBtn[i].setBackground(new Color(160, 222, 255));
-		}
+		passwordField.setBounds(200, 230, 200, 50);
+		usernameField.setBounds(200, 170, 200, 50);
+		showPassword.setBounds(200, 280, 200, 20);
+		signUpBtn.setBounds(580, 250, 125, 50);
+		signInBtn.setBounds(200, 310, 115, 50);
 
-		funcBtn[4].setBackground(new Color(90, 178, 255));
-		funcBtn[5].setBackground(new Color(202, 244, 255));
-		funcBtn[6].setBackground(new Color(160, 222, 255));
-		exitBtn.setBackground(new Color(0xF4796B));
+		panel.setBackground(new Color(77, 134, 156));
+		panel.setBounds(500, 0, 300, 500);
 		
-		//Button 
-		for(int i = 0; i < 10; i++) {
-			numBtn[i] = new Button(String.valueOf(i));
-			numBtn[i].addActionListener(this);
-			numBtn[i].setFocusable(false);
-			numBtn[i].setFont(new Font("Serif", Font.PLAIN, 18));
-			numBtn[i].setBackground(new Color(255, 249, 208));
-		}
-
-		//TextField
-		textField1.setBackground(new Color(0xF0F6F6));
-		textField2.setBackground(new Color(0xF0F6F6));
-		textField3.setBackground(new Color(0xF0F6F6));
-		textField1.setForeground(new Color(0x171614));
-		textField2.setForeground(new Color(0x171614));
-		textField3.setForeground(new Color(0x171614));
-		
-		textField1.setFont(new Font("Serif", Font.PLAIN, 36));
-		textField2.setFont(new Font("Serif", Font.PLAIN, 36));
-		textField3.setFont(new Font("Serif", Font.PLAIN, 36));
-		textField1.setEditable(false);
-		textField2.setEditable(false);
-		textField3.setEditable(false);
-		
-		//Label
-		label1.setForeground(new Color(0x171614));
-		label1.setBackground(new Color(253, 228, 158));
-		label1.setFont(new Font("Serif", Font.PLAIN, 36));
-		label2.setForeground(new Color(0x171614));
-		label2.setBackground(new Color(253, 228, 158));
-		label2.setFont(new Font("Serif", Font.PLAIN, 36));
-		label3.setForeground(new Color(0x171614));
-		label3.setBackground(new Color(253, 228, 158));
-		label3.setFont(new Font("Serif", Font.PLAIN, 36));
-		label4.setForeground(new Color(0x171614));
-		label4.setBackground(new Color(253, 228, 158));
-		label4.setFont(new Font("Serif", Font.PLAIN, 32));
-		
-
-		label1.setBounds(25, 80, 200, 30);
-		label2.setBounds(280, 80, 200, 30);
-		label3.setBounds(200, 250, 100, 30);
-		label4.setBounds(238, 130, 30, 50);
-		textField1.setBounds(15, 130, 210, 50);
-		textField2.setBounds(278, 130, 210,50);
-		textField3.setBounds(150, 190, 210, 50);
-
-		darkMode = new Button("■");
-		darkMode.addActionListener(this);
-		darkMode.setFocusable(false);
-		darkMode.setFont(new Font("Serif", Font.PLAIN, 10));
-		darkMode.setBackground(new Color(160, 222, 255));
-
-		
-		exitBtn.addActionListener(this);
-		
-		panel1.setBackground(new Color(253, 228, 158));
-		panel1.setBounds(0, 0, 500, 300); 
-		
-		numBtn[7].setBounds(0, 300, 125, 50);
-		numBtn[8].setBounds(125, 300, 125, 50);
-		numBtn[9].setBounds(250, 300, 125, 50);
-		divBtn.setBounds(375, 300, 125, 50);
-
-		numBtn[4].setBounds(0, 350, 125, 50);
-		numBtn[5].setBounds(125, 350, 125, 50);
-		numBtn[6].setBounds(250, 350, 125, 50);
-		mulBtn.setBounds(375, 350, 125, 50);
-
-		numBtn[1].setBounds(0, 400, 125, 50);
-		numBtn[2].setBounds(125, 400, 125, 50);
-		numBtn[3].setBounds(250, 400, 125, 50);
-		minusBtn.setBounds(375, 400, 125, 50);
-
-		clearBtn.setBounds(0, 450, 125, 100);
-		numBtn[0].setBounds(125, 450, 125, 100);
-		equBtn.setBounds(250, 450, 125, 100);
-		plusBtn.setBounds(375, 450, 125, 50);
-		modBtn.setBounds(375, 500, 125, 50);
-
-		darkMode.setBounds(470, 32, 30, 30);
-		exitBtn.setBounds(10, 32, 30, 30);
-
-		//Frame
-		add(label1);add(label2);add(label4);add(textField1);add(textField2);add(label3);add(textField3);add(numBtn[7]);add(numBtn[8]);add(numBtn[9]);add(divBtn);add(modBtn);add(numBtn[4]);add(numBtn[5]);add(numBtn[6]);add(mulBtn);add(numBtn[1]);add(numBtn[2]);add(numBtn[3]);add(minusBtn);add(clearBtn);add(numBtn[0]);add(equBtn);add(plusBtn);add(darkMode);add(exitBtn);add(panel1);
-
-		
-		setResizable(false);
-		setSize(510, 550);
-		setLayout(null);
-		setVisible(true);
-		setBackground(new Color(0xF0F6F6));
-		setTitle("Calculator");
-		setLocationRelativeTo(null);
-	
+		frame.setSize(800, 500);
+		frame.setResizable(false);
+		frame.setTitle("Login");
+		frame.setVisible(true);
+		frame.setLayout(null);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		frame.getContentPane().setBackground(new Color(238, 247, 255));
+		frame.add(label1);
+		frame.add(label2);
+		frame.add(label3);
+		frame.add(label4);
+		frame.add(label5);
+		frame.add(label6);
+		frame.add(passwordField);
+		frame.add(showPassword);
+		frame.add(usernameField);
+		frame.add(signInBtn);
+		frame.add(signUpBtn);
+		frame.add(panel);
 	}
-	//Action Listener
+
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		for(int i=0; i < 10; i++) {
-			if(!done) { //First solve
-				if(emptyField1 && e.getSource() == numBtn[i]) { //If the first number is empty
-						textField1.setText(limitNum(textField1.getText().concat(String.valueOf(i))));
-				}
-				else if (e.getSource() == numBtn[i]){ //If the first number is occupied, move to next field
-						textField2.setText(limitNum(textField2.getText().concat(String.valueOf(i))));
-				}
-				
+		
+		if(showPassword.isSelected()) passwordField.setEchoChar((char)0);
+		else passwordField.setEchoChar('*');
+		
+		//SIGN IN BUTTON
+		if(e.getSource() == signInBtn) {
+			checkUsernameField();
+			if(hasCorrectUsername) {
+				checkPasswordField();
+				hasCorrectUsername = false;
 			}
-			else { //IF DONE WITH THE FIRST EQUATION
-				if(emptyField1 && e.getSource() == numBtn[i]) {
-						textField1.setText("");
-						textField2.setText("");
-						done = false;
-						num2 = 0;
-						textField1.setText(limitNum(textField1.getText().concat(String.valueOf(i))));
-				}
-				else if(e.getSource() == numBtn[i]){
-					textField2.setText(limitNum(textField2.getText().concat(String.valueOf(i))));
-				}
+			if(hasCorrectPassword) {
+				EditForm editForm = new EditForm(database);
+				frame.dispose();
+				hasCorrectPassword = false;
 			}
 		}
+		if(e.getSource() == signUpBtn) {
+			Register register = new Register(database);
+			frame.dispose();
+		}
+
+	}
+	
+	public void checkUsernameField() {
+		username = usernameField.getText();
+		usernameList = database.getUsernames();
+
+		//IF THE USERNAME IS EMPTY
+		if(username.isEmpty()) {JOptionPane.showMessageDialog(null, "Enter a valid username","ERROR", JOptionPane.ERROR_MESSAGE); return;} 
 		
-		if(!toggleDarkMode && e.getSource() == darkMode) toggleDarkMethod();
-		else if(e.getSource() == darkMode) toggleLightMethod();
+		//IF THE USERNAME IS SHORTER THAN 8 CHARACTERS
+		if(username.length() < 8) {JOptionPane.showMessageDialog(null, "Must be atleast 8 characters","ERROR", JOptionPane.ERROR_MESSAGE);return;}
 		
-		if(e.getSource() == exitBtn) {
-			System.exit(0);
-		}
-		//PLUS
-		if(e.getSource() == plusBtn) {
-			operator = "+";
-			checkField(num1);
-			label4.setText(operator);
-			if(done) num1 = changeNum(num1, num2, result);
-		}
-		//MINUS
-		if(e.getSource() == minusBtn) {
-			operator = "-";
-			checkField(num1);
-			label4.setText(operator);
-			if(done) num1 = changeNum(num1, num2, result);
-		}
-		//MULTIPLY
-		if(e.getSource() == mulBtn) {
-			operator = "×";
-			checkField(num1);
-			label4.setText(operator);
-			if(done) num1 = changeNum(num1, num2, result);
-		}
-		//DIVIDE
-		if(e.getSource() == divBtn) {
-			operator = "÷";
-			checkField(num1);
-			label4.setText(operator);
-			if(done) num1 = changeNum(num1, num2, result);
-		}
-		if(e.getSource() == modBtn) {
-			operator = "%";
-			checkField(num1);
-			label4.setText(operator);
-			if(done) num1 = changeNum(num1, num2, result);
+		//WHILE THE USERNAME IS NOT FOUND 
+		while(!usernameFound) {
+			for(int i = 0; i < usernameList.size(); i++) {
+				if(username.equals(usernameList.get(i))) {
+					hasCorrectUsername = true;
+					usernameFound = true;
+					break;
+				}
+				else {
+					hasCorrectUsername = false;
+				}
 		}
 		
-		//CLEAR
-		if(e.getSource() == clearBtn) {
-			textField1.setText("");
-			textField2.setText("");
-			textField3.setText("");
-			num1 = 0;
-			num2 = 0;
-			result = 0;
-			emptyField1 = true;
-			emptyField2 = true;
-			emptyBoth = true;
-			done = false;
-			operator = "";
-			label4.setText(operator);
+		//IF THE USERNAME IS NOT FOUND 
+			if(!usernameFound && username.length() >= 8) {
+					JOptionPane.showMessageDialog(null, "Username does not exist.", "ERROR", JOptionPane.ERROR_MESSAGE);
+					hasCorrectUsername = false;
+					return;
+				}
 		}
-		//EQUAL
-		if(e.getSource() == equBtn) {
-			checkField(num2);
+		usernameFound = false; //reset to enter the while loop again
+	}
+
+	public void checkPasswordField() {
+		passwordChar = passwordField.getPassword();
+		password = new String(passwordChar);
+		passwordList = database.getPasswords();
+		
+		//IF THE PASSWORD IS EMPTY
+		if(password.isEmpty()) {JOptionPane.showMessageDialog(null, "Please enter your password", "ERROR", JOptionPane.ERROR_MESSAGE);return;}
+		
+		//IF THE PASSWORD IS SHORT
+		if(password.length() < 8) {JOptionPane.showMessageDialog(null, "Password must be atleast 8 characters", "ERROR", JOptionPane.ERROR_MESSAGE);return;}
+		
+		//WHILE PASSWORD IS NOT FOUND 
+		while(!passwordFound) {
+			for(int i = 0; i < passwordList.size(); i++) {
+				if(database.loginUser(username, password)) {
+					database.indexer(username, password);
+					hasCorrectPassword = true;
+					passwordFound = true;
+					break;
+				}
+				else {
+					hasCorrectPassword = false;
+				}
+			}
+
 			
-			switch(operator) {
-			case "+":
-				result = num1 + num2;
-				break;
-			case "-":
-				result = num1 - num2;
-				break;
-			case "×":
-				result = num1 * num2;
-				break;
-			case "÷":
-				result = num1 / num2;
-				break;
-			case "%":
-				result = num1 % num2;
-				break;
-			default:
-				break;
-			}
-			//RESULTS
-			if (emptyBoth) {
-				textField3.setText("");
-			}
-			else if(emptyField2){
-				textField3.setText(limitNum(String.valueOf(num1)));
-				emptyField1 = true;
-				textField1.setText("");
-				done = false;
-				operator = "";
-				label4.setText(operator);
-			}
-			else if (!emptyBoth && !emptyField1&& !emptyField2) {
-				emptyField1 = true;
-				emptyField2 = true;
-				done = true;
-				textField3.setText(limitNum(String.valueOf(result)));
-				num1 = 0;
-				num2 = 0;
+			if(!passwordFound) {
+				JOptionPane.showMessageDialog(null, "Incorrect Password", "ERROR", JOptionPane.ERROR_MESSAGE);
+				hasCorrectPassword = false;
+				return;
 			}
 		}
-	}
-
-
-	
-	public double checkField(double num) {
-		if(!textField1.getText().isEmpty()) { //if the text field 1 is not empty
-			num1 = Double.parseDouble(textField1.getText()); // Assign the value to num1
-			emptyField1 = false;
-			emptyBoth = false;
-		}
-		else { //if the text field 1 is empty
-			emptyField1 = true;
-			emptyBoth = true;
-			operator = "";
-			JOptionPane.showMessageDialog(null, "Complete the equation first.", 
-                    "ERROR", JOptionPane.ERROR_MESSAGE);
-		}
-		
-		if(!textField2.getText().isEmpty()) { // If text field 2 is not empty
-			num2 = Double.parseDouble(textField2.getText()); //Assign the value to num2
-			emptyField2 = false;
-		}
-		return num;
-	}
-
-	private double changeNum(double num1,double num2, double result2) { //Move the result to textField 1
-		num1 = result;
-		num2 = 0;
-		textField1.setText(String.valueOf(result));
-		textField2.setText("");
-		return num1;
+		passwordFound = false; //reset to enter the while loop again
 	}
 	
-	private String limitNum(String number) {
-	
-		int length = number.length();
-		String lastThreeCharacters = "";
-		
-		if (length >= 3) lastThreeCharacters = number.substring(length - 3); //get the last three characters
-	
-		if(number == "Infinity") return number; //If the result is infinity
-		
-		
-		if(length >= maxLength && number.contains("E")) { //If the maxLength was reached and number contains an E 
-			number = number.substring(0, 1) + number.substring(1 + 1);
-			number = number.substring(0, maxLength - 3) + lastThreeCharacters;
-			return number;
-		}
-		else if(length > maxLength && Double.parseDouble(number) > 999999999){
-			return number.substring(0, maxLength);
-		}
-		if (length >= maxLength) number = number.substring(0, maxLength - 3) + lastThreeCharacters;
-		
-		return number;
-	}
-	
-	private void toggleDarkMethod() {
-		panel1.setBackground(new Color(7, 15, 43));setForeground(new Color(255, 255, 255));
-		label1.setBackground(new Color(7, 15, 43));
-		label1.setForeground(new Color(255, 255, 255));
-		label2.setBackground(new Color(7, 15, 43));
-		label2.setForeground(new Color(255, 255, 255));
-		label3.setBackground(new Color(7, 15, 43));
-		label3.setForeground(new Color(255, 255, 255));
-		label4.setBackground(new Color(7, 15, 43));
-		label4.setForeground(new Color(255, 255, 255));
-		
-		darkMode.setBackground(new Color(174, 236, 239));
-		
-		for (int i = 0; i < 10; i++) {
-			numBtn[i].setBackground(new Color(146, 144, 195));
-		}
-		for(int i = 0; i < 6; i++) {
-			funcBtn[i].setBackground(new Color(27, 26, 85));
-			funcBtn[i].setForeground(new Color(255, 255, 255));
-		}
-		funcBtn[4].setBackground(new Color(83, 92, 145));
-		funcBtn[5].setBackground(new Color(83, 92, 145));
-		toggleDarkMode = !toggleDarkMode;
-	}
-	private void toggleLightMethod() {
-		textField1.setBackground(new Color(0xF0F6F6));
-		textField2.setBackground(new Color(0xF0F6F6));
-		textField3.setBackground(new Color(0xF0F6F6));
-		textField1.setForeground(new Color(0x171614));
-		textField2.setForeground(new Color(0x171614));
-		textField3.setForeground(new Color(0x171614));
-		
-		label1.setForeground(new Color(0x171614));
-		label1.setBackground(new Color(253, 228, 158));
-		label2.setForeground(new Color(0x171614));
-		label2.setBackground(new Color(253, 228, 158));
-		label3.setForeground(new Color(0x171614));
-		label3.setBackground(new Color(253, 228, 158));
-		label4.setForeground(new Color(0x171614));
-		label4.setBackground(new Color(253, 228, 158));
-		panel1.setBackground(new Color(253, 228, 158));
-		
-		darkMode.setBackground(new Color(160, 222, 255));
-		
-		toggleDarkMode = !toggleDarkMode;
-		
-		for(int i = 0; i < 10; i++) {
-			numBtn[i].setBackground(new Color(255, 249, 208));
-		}
-		for(int i = 0; i < 6; i++) {
-			funcBtn[i].setBackground(new Color(160, 222, 255));
-			funcBtn[i].setForeground(new Color(0x171614));
-		}
-		funcBtn[4].setBackground(new Color(90, 178, 255));
-		funcBtn[5].setBackground(new Color(202, 244, 255));
-		
+	public void register(List<String> usernameList, List<String> passwordList) {
+		 	database.registerUser(usernameList, passwordList);
+			database.displayNames(nameList);
 	}
 	
 }
